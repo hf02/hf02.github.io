@@ -116,7 +116,17 @@ async function startGame() {
 	if (currentGame !== undefined) {
 		await currentGame.stop()
 	}
+
+	onResize()
+
 	currentGame = game()
+	currentGame.onStop = (death) => {
+		console.log('wAAA')
+		if (death === true) {
+			console.log('woop')
+			startGame()
+		}
+	}
 }
 
 window.onload = async () => {
@@ -151,5 +161,5 @@ window.onload = async () => {
 		event.preventDefault()
 	}
 
-	currentGame = game()
+	await startGame()
 }

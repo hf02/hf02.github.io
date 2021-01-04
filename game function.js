@@ -1,14 +1,23 @@
 function game() {
 
 	let toReturn = {
-		stop: () => {
+		onStop: (death = true) => { },
+		stop: (wasDeath = false) => {
 			return new Promise((resolve) => {
-				stopGame = () => {
+				if (gameEnded === true) {
 					resolve()
+				} else {
+
+					stopGame = () => {
+						console.log('stopgame')
+						toReturn.onStop(wasDeath)
+						resolve()
+
+					}
 				}
 
 			})
-		}
+		},
 	}
 
 	requestAnimationFrame(loop)
@@ -21,7 +30,7 @@ function game() {
 
 	let clearFrames = true
 	let score = 0
-	let time = 30
+	let time = 10
 
 	let paused = false
 	let lastFrameWasPaused = false
@@ -434,10 +443,10 @@ function game() {
 			document.getElementById('timetext').innerText = 'game over'
 			spaceshipData = []
 			currentSpaceshipData = []
-			dead = true
-		} else {
-			requestAnimationFrame(loop)
+			toReturn.stop(true)
 		}
+		requestAnimationFrame(loop)
+
 	}
 
 	return toReturn
