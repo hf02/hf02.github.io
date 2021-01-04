@@ -49,37 +49,107 @@ function timeoutPromise(milliseconds) {
 	})
 }
 
-images = {
-	endpoint: new Image(),
-	endpoint2: new Image(),
-	otherspaceship: new Image(),
-	otherspaceshipthrust: new Image(),
-	endpointCleared: new Image(),
-	endpointClearedDone: new Image(),
-	spawnpoint: new Image(),
+
+
+let keys = {}
+
+document.body.onkeydown = (event) => {
+	keys[event.code] = true
 }
 
-images.endpoint.src = 'img/endpoint.png'
-images.endpoint2.src = 'img/endpoint2.png'
-images.otherspaceship.src = 'img/other spaceship.png'
-images.otherspaceshipthrust.src = 'img/other spaceship thrust.png'
-images.endpointCleared.src = 'img/other endpoint.png'
-images.endpointClearedDone.src = 'img/other endpoint reached.png'
-images.spawnpoint.src = 'img/spawnpoint.png'
+document.body.onkeyup = (event) => {
+	keys[event.code] = false
+}
 
-async function loadImages(images = ['']) {
 
-	function loadImage() {
-
+function key(keyCode) {
+	let stat = keys[keyCode]
+	if (stat == true) {
+		return true
+	} else {
+		return false
 	}
+}
 
-	for (let i = 0; i < images.length; i++) {
-		const element = images[i];
+images = {}
 
+async function loadImages(imagesToAdd = [{ name: '', src: '' }]) {
+	document.getElementById('timetext').innerText = 'Loading images'
+
+
+
+	return new Promise((resolve, reject) => {
+		let number = 0
+		let numberMax = 0
+
+		function setPercentage() {
+			document.getElementById('scoretext').innerText = `${~~((number / numberMax) * 100)}%`
+			document.getElementById('timetext').innerText = `Loading images ${number} / ${numberMax}`
+		}
+
+		for (let i = 0; i < imagesToAdd.length; i++) {
+			const element = imagesToAdd[i];
+			numberMax++
+
+			setPercentage()
+
+			let imageToAdd = new Image()
+			imageToAdd.src = element.src
+			images[element.name] = imageToAdd
+			imageToAdd.onload = () => {
+				number++
+				setPercentage()
+				if (number >= numberMax) {
+					resolve(number)
+				}
+			}
+			imageToAdd.onerror = () => {
+				reject(imageToAdd)
+			}
+		}
+	})
+}
+
+let currentGame
+
+async function startGame() {
+	if (currentGame !== undefined) {
+		await currentGame.stop()
 	}
+	currentGame = game()
 }
 
 window.onload = async () => {
+	document.getElementById('timetext').innerText = 'Resizing content'
 	onResize()
-	loadImages
+	await loadImages([
+		{ name: 'endpoint', src: 'img/endpoint.png' },
+		{ name: 'endpoint2', src: 'img/endpoint2.png' },
+		{ name: 'otherspaceship', src: 'img/other spaceship.png' },
+		{ name: 'otherspaceshipthrust', src: 'img/other spaceship thrust.png' },
+		{ name: 'normal', src: 'img/spaceship.png' },
+		{ name: 'normalthrust', src: 'img/thrust.png' },
+		{ name: 'endpointCleared', src: 'img/other endpoint.png' },
+		{ name: 'endpointClearedDone', src: 'img/other endpoint reached.png' },
+		{ name: 'spawnpoint', src: 'img/spawnpoint.png' },
+	])
+	document.getElementById('timetext').innerText = 'Starting game'
+	onResize()
+
+
+
+	document.getElementById('left').ontouchstart = (e) => { touchEvents('ArrowLeft', true, e) }
+	document.getElementById('left').ontouchend = (e) => { touchEvents('ArrowLeft', false, e) }
+	document.getElementById('left').ontouchcancel = (e) => { touchEvents('ArrowLeft', false, e) }
+
+	document.getElementById('right').ontouchstart = (e) => { touchEvents('ArrowRight', true, e) }
+	document.getElementById('right').ontouchend = (e) => { touchEvents('ArrowRight', false, e) }
+	document.getElementById('right').ontouchcancel = (e) => { touchEvents('ArrowRight', false, e) }
+
+	function touchEvents(key, setTo, event) {
+		keys[key] = setTo
+		event.preventDefault()
+	}
+
+	currentGame = game()
 }

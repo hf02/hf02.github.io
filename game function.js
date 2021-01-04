@@ -1,17 +1,31 @@
 function game() {
 
+	let toReturn = {
+		stop: () => {
+			return new Promise((resolve) => {
+				stopGame = () => {
+					resolve()
+				}
+
+			})
+		}
+	}
+
+	requestAnimationFrame(loop)
+
+
 
 	let deltaTime = 0
 	let deltaTimeDataLast = 0
 	let fps = 0
-	let keys = {}
+
 	let clearFrames = true
 	let score = 0
 	let time = 30
 
 	let paused = false
 	let lastFrameWasPaused = false
-
+	let gameEnded = false
 
 
 	let spaceshipData = []
@@ -53,8 +67,8 @@ function game() {
 		}
 	}
 
-	p.images.normal.src = 'img/spaceship.png'
-	p.images.thrust.src = 'img/thrust.png'
+	p.images.normal = images.normal
+	p.images.thrust = images.normalthrust
 	p.mainImage = p.images.normal
 
 
@@ -117,22 +131,7 @@ function game() {
 
 	// }
 
-	document.body.onkeydown = (event) => {
-		keys[event.code] = true
-	}
 
-	document.body.onkeyup = (event) => {
-		keys[event.code] = false
-	}
-
-	function key(keyCode) {
-		let stat = keys[keyCode]
-		if (stat == true) {
-			return true
-		} else {
-			return false
-		}
-	}
 
 
 	function getKeyframeObject(index, timestamp, type) {
@@ -181,37 +180,22 @@ function game() {
 	let endpointAnim = ''
 	let currentKeyframeTimestampIndex
 
-	document.body.onload = () => {
-		onResize()
-
-		p.x = getRndInteger(0, canvas.width)
-		p.y = getRndInteger(0, canvas.height)
-
-		document.getElementById('left').ontouchstart = (e) => { touchEvents('ArrowLeft', true, e) }
-		document.getElementById('left').ontouchend = (e) => { touchEvents('ArrowLeft', false, e) }
-		document.getElementById('left').ontouchcancel = (e) => { touchEvents('ArrowLeft', false, e) }
-
-		document.getElementById('right').ontouchstart = (e) => { touchEvents('ArrowRight', true, e) }
-		document.getElementById('right').ontouchend = (e) => { touchEvents('ArrowRight', false, e) }
-		document.getElementById('right').ontouchcancel = (e) => { touchEvents('ArrowRight', false, e) }
-
-		function touchEvents(key, setTo, event) {
-			keys[key] = setTo
-			event.preventDefault()
-		}
 
 
-		requestAnimationFrame(loop)
-	}
 
-	window.onresize = onResize
+
+
 
 	let dead = false
 	let stopGame = false
 
 	function loop(timestamp) {
 
-		if (stopGame = true) {
+		if (stopGame !== false) {
+			currentSpaceshipData = undefined
+			spaceshipData = undefined
+			gameEnded = true
+			stopGame()
 			return
 		}
 
@@ -455,4 +439,7 @@ function game() {
 			requestAnimationFrame(loop)
 		}
 	}
+
+	return toReturn
+
 }
