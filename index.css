@@ -1,10 +1,49 @@
-#canvas {
+#stars {
     top:0px;
     left:0px;
     transform: translate(-50%, -50%) scale(2);
     position: absolute;
     image-rendering: pixelated;
     background-color:rgb(0, 0, 0);
+}
+
+#canvas {
+    top:0px;
+    left:0px;
+    transform: translate(-50%, -50%) scale(2);
+    position: absolute;
+    image-rendering: pixelated;
+    background-color:transparent
+}
+
+#left {
+    position: fixed;
+    top:0px;
+    left:0px;
+    width:50%;
+    height: 100%;
+}
+
+#fps {
+    position: fixed;
+    top:0px;
+    left:0px;
+    pointer-events: none;
+}
+
+#right {
+    position: fixed;
+    top:0px;
+    left:50%;
+    width:50%;
+    height: 100%;
+}
+#top {
+    position: fixed;
+    top:0px;
+    left:0px;
+    width:100%;
+    height: 40%;
 }
 
 #textholder {
