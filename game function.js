@@ -387,19 +387,31 @@ function game() {
 		if (clearFrames === true) { ctx.clearRect(0, 0, canvas.width, canvas.height) }
 
 
+
 		spaceshipData.forEach((element, index) => {
 			let keyframeObject = getKeyframeObject(index, currentKeyframeTimestampIndex, 'rendering')
 			let object = element
 			drawImage(images.spawnpoint, object.lastStats.x, object.lastStats.y, { rotation: object.lastStats.r })
 			if (keyframeObject === undefined) {
 				drawImage(images.endpointClearedDone, object.endLocation.x, object.endLocation.y)
-
 				return
 			}
 
 
-			drawImage((keyframeObject.t === false ? images.otherspaceship : images.otherspaceshipthrust), keyframeObject.x, keyframeObject.y, { rotation: keyframeObject.r })
 			drawImage(images.endpointCleared, object.endLocation.x, object.endLocation.y)
+
+			// if (index === 0) {
+			//   console.log(keyframeObject.x)
+			// }
+
+		})
+
+		spaceshipData.forEach((element, index) => {
+			let keyframeObject = getKeyframeObject(index, currentKeyframeTimestampIndex, 'rendering')
+			let object = element
+			if (keyframeObject === undefined) return
+			drawImage((keyframeObject.t === false ? images.otherspaceship : images.otherspaceshipthrust), keyframeObject.x, keyframeObject.y, { rotation: keyframeObject.r })
+
 
 			// if (index === 0) {
 			//   console.log(keyframeObject.x)
