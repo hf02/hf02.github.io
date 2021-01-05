@@ -1,7 +1,10 @@
+let debug = 'no info'
+let debugRounded = 'no floored info'
+
 function game() {
 
 	let toReturn = {
-		onStop: (death = true) => { },
+		onStop: (death = true, score = 0) => { },
 		stop: (wasDeath = false) => {
 			return new Promise((resolve) => {
 				if (gameEnded === true) {
@@ -9,8 +12,7 @@ function game() {
 				} else {
 
 					stopGame = () => {
-						console.log('stopgame')
-						toReturn.onStop(wasDeath)
+						toReturn.onStop(wasDeath, score)
 						resolve()
 
 					}
@@ -18,6 +20,20 @@ function game() {
 
 			})
 		},
+		setPause: (setTo) => {
+			if (setTo === true) {
+				paused = true
+			} else if (setTo === false) {
+				paused = false
+			}
+		},
+		togglePause: () => {
+			toReturn.setPause(!paused)
+		},
+		paused: false,
+		score: 0,
+		time: 0,
+		stopped: false
 	}
 
 	requestAnimationFrame(loop)
@@ -198,31 +214,77 @@ function game() {
 	let dead = false
 	let stopGame = false
 
-	function loop(timestamp) {
+	// let pausedText = {
+	// 	x: 0,
+	// 	y: 0,
+	// 	hue: 0
+	// }
+
+	let frame = 0
+
+	async function loop(timestamp) {
+		frame += 1
 
 		if (stopGame !== false) {
 			currentSpaceshipData = undefined
 			spaceshipData = undefined
 			gameEnded = true
+			toReturn.stopped = true
 			stopGame()
 			return
 		}
+
 
 		// fps, deltatime, and pausing
 		deltaTime = timestamp - deltaTimeDataLast
 		deltaTimeDataLast = timestamp
 		fps = 1000 / deltaTime
+		if (deltaTime > 1000) {
+			deltaTime = 1000
+		}
 
 		if (lastFrameWasPaused) {
-			deltaTime = 0
+			if (paused === false) deltaTime = 0
 			lastFrameWasPaused = false
 		}
 
 		if (paused) {
-			deltaTime = 0
+
+
 			lastFrameWasPaused = true
+
+			document.getElementById('pause').style.display = null
+
+			// pausedText.x += dt(0.0005)
+			// pausedText.y += dt(0.001)
+			// pausedText.hue += dt(0.05)
+
+			// while (pausedText.hue >= 360) {
+			// 	pausedText.hue -= 360
+			// }
+
+			// let text = 'Paused'
+
+			// let image = images.paused
+
+			// let textX = (canvas.width / 2) + (Math.sin(pausedText.x) * ((canvas.width - image.width) * 0.5)) - (image.width / 2)
+			// let textY = (canvas.height / 2) + (Math.sin(pausedText.y) * ((canvas.height - image.height) * 0.5)) - (image.height / 2)
+
+			// drawImage(images.paused, textX, textY, { filter: `hue-rotate(${pausedText.hue}deg)`, rotation: pausedText.hue })
+
+			// ctx.fillText(text, textX, textY)
+			// ctx.strokeText(text, textX, textY)
+
+
+			// ctx.fillText(text, textXRnd, textYRnd)
+			// ctx.strokeText(text, textXRnd, textYRnd)
+
+
+			deltaTime = 0
 			requestAnimationFrame(loop)
 			return
+		} else {
+			document.getElementById('pause').style.display = 'none'
 		}
 
 
@@ -274,6 +336,8 @@ function game() {
 		if (currentSpaceshipData.keyframeData[currentSpaceshipData.keyframeData.length + 1] !== toPushInto) {
 			currentSpaceshipData.keyframeData.push(toPushInto)
 		}
+		debug = `fps: ${fps} / x: ${p.x} / y: ${p.y} / r: ${p.r} / (speed) x: ${p.speed.x} / y: ${p.speed.y} / r: ${p.speed.r}`
+		debugRounded = `fps: ${~~fps} / x: ${~~p.x} / y: ${~~p.y} / r: ${~~p.r} / (speed) x: ${~~p.speed.x} / y: ${~~p.speed.y} / r: ${~~p.speed.r}`
 
 
 
@@ -449,6 +513,10 @@ function game() {
 		document.getElementById('scoretext').innerText = score
 		document.getElementById('timetext').innerText = Math.floor(time)
 		document.getElementById('fps').innerText = Math.floor(fps)
+
+		toReturn.paused = paused
+		toReturn.score = score
+		toReturn.time = time
 
 
 		if (time < 0) {

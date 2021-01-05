@@ -54,6 +54,13 @@ function timeoutPromise(milliseconds) {
 let keys = {}
 
 document.body.onkeydown = (event) => {
+
+	if (key(event.code) === false) {
+		if (event.code === 'Escape') {
+			togglePause()
+		}
+	}
+
 	keys[event.code] = true
 }
 
@@ -61,6 +68,17 @@ document.body.onkeyup = (event) => {
 	keys[event.code] = false
 }
 
+function togglePause() {
+	if (currentGame !== undefined && currentGame.stopped === false) {
+		currentGame.togglePause()
+	}
+}
+
+function setPause(setTo) {
+	if (currentGame !== undefined && currentGame.stopped === false) {
+		currentGame.setPause(setTo)
+	}
+}
 
 function key(keyCode) {
 	let stat = keys[keyCode]
@@ -120,16 +138,40 @@ async function startGame() {
 	onResize()
 
 	currentGame = game()
-	currentGame.onStop = (death) => {
-		console.log('wAAA')
+	currentGame.onStop = (death, score) => {
 		if (death === true) {
-			console.log('woop')
+
+			if (localStorage.highscore === undefined) {
+				localStorage.highscore = 0
+			}
+
+
+			if (localStorage.highscore < score) {
+				localStorage.highscore = score
+			}
+
 			startGame()
 		}
 	}
 }
 
 window.onload = async () => {
+
+	// if (localStorage.alreadyReloaded === undefined) {
+	// 	localStorage.alreadyReloaded = 'false'
+	// }
+
+	// if (document.getElementById('version').content !== version) {
+
+	// 	if (localStorage.alreadyReloaded === 'false') {
+	// 		location.reload(true)
+	// 		localStorage.alreadyReloaded = 'true'
+	// 	} else {
+	// 		alert(`the game version isn't lining up! try to clear your cache.`)
+	// 		localStorage.alreadyReloaded = 'false'
+	// 	}
+	// }
+
 	document.getElementById('timetext').innerText = 'Resizing content'
 	onResize()
 	await loadImages([
@@ -142,6 +184,7 @@ window.onload = async () => {
 		{ name: 'endpointCleared', src: 'img/other endpoint.png' },
 		{ name: 'endpointClearedDone', src: 'img/other endpoint reached.png' },
 		{ name: 'spawnpoint', src: 'img/spawnpoint.png' },
+		{ name: 'paused', src: 'img/paused.png' },
 	])
 	document.getElementById('timetext').innerText = 'Starting game'
 	onResize()
@@ -155,6 +198,24 @@ window.onload = async () => {
 	document.getElementById('right').ontouchstart = (e) => { touchEvents('ArrowRight', true, e) }
 	document.getElementById('right').ontouchend = (e) => { touchEvents('ArrowRight', false, e) }
 	document.getElementById('right').ontouchcancel = (e) => { touchEvents('ArrowRight', false, e) }
+
+	document.getElementById('top').ontouchend = (e) => {
+
+		togglePause()
+
+		e.preventDefault()
+
+	}
+
+	document.body.ontouchstart = preventDefault
+	document.body.ontouchend = preventDefault
+	document.body.ontouchcancel = preventDefault
+	document.body.ontouchmove = preventDefault
+
+	function preventDefault(e) {
+		e.preventDefault()
+	}
+
 
 	function touchEvents(key, setTo, event) {
 		keys[key] = setTo
