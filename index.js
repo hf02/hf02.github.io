@@ -3,11 +3,10 @@ let ctx = canvas.getContext('2d')
 let starCanvas = document.getElementById('stars')
 let starCtx = starCanvas.getContext('2d')
 
+let currentMenu = ''
+
 function getRndInteger(min, max) {
-
-
-	return Math.floor(Math.random() * (max - min)) + min;
-
+	return Math.floor(Math.random() * (max - min)) + min
 }
 
 function onResize() {
@@ -55,9 +54,16 @@ let keys = {}
 
 document.body.onkeydown = (event) => {
 
+	// only use event.code, all other values might not be defined
+
 	if (key(event.code) === false) {
-		if (event.code === 'Escape') {
+		if (event.code === 'Escape' || event.code === 'ArrowUp') {
 			togglePause()
+		}
+		if (currentMenu === 'death') {
+			if (event.code === 'ArrowRight') {
+				doRestart = true
+			}
 		}
 	}
 
@@ -65,6 +71,17 @@ document.body.onkeydown = (event) => {
 }
 
 document.body.onkeyup = (event) => {
+	// only use event.code, all other values might not be defined
+
+	if (currentMenu === 'death') {
+		if (event.code === 'ArrowRight') {
+			if (doRestart === true) {
+				startGame()
+				doRestart = false
+			}
+		}
+	}
+
 	keys[event.code] = false
 }
 
@@ -93,6 +110,7 @@ images = {}
 
 async function loadImages(imagesToAdd = [{ name: '', src: '' }]) {
 	document.getElementById('timetext').innerText = 'Loading images'
+	document.getElementById('textcontainer').style.opacity = '1'
 
 
 
@@ -119,6 +137,7 @@ async function loadImages(imagesToAdd = [{ name: '', src: '' }]) {
 				setPercentage()
 				if (number >= numberMax) {
 					resolve(number)
+					document.getElementById('textcontainer').style.opacity = '1'
 				}
 			}
 			imageToAdd.onerror = () => {
@@ -130,6 +149,8 @@ async function loadImages(imagesToAdd = [{ name: '', src: '' }]) {
 
 let currentGame
 
+let doRestart = false
+
 async function startGame() {
 	if (currentGame !== undefined) {
 		await currentGame.stop()
@@ -138,19 +159,44 @@ async function startGame() {
 	onResize()
 
 	currentGame = game()
+
+	document.getElementById('leftcontroltext').innerText = ''
+	document.getElementById('rightcontroltext').innerText = ''
+
+	document.getElementById('death').style.top = null
+	document.getElementById('death').style.transform = null
+
+	currentMenu = 'game'
 	currentGame.onStop = (death, score) => {
 		if (death === true) {
 
-			if (localStorage.highscore === undefined) {
+			if (localStorage.highscore === undefined || parseInt(localStorage.highscore) === NaN) {
 				localStorage.highscore = 0
 			}
 
+			let newHighScore = false
 
 			if (localStorage.highscore < score) {
 				localStorage.highscore = score
+				newHighScore = true
 			}
 
-			startGame()
+			document.getElementById('deathscorenumber').innerText = score
+			document.getElementById('deathhighscorenumber').innerText = localStorage.highscore
+
+			document.getElementById('death').style.top = '50%'
+			document.getElementById('death').style.transform = 'translate(-50%, -50%) scale(1)'
+
+
+			setTimeout(() => {
+
+
+				currentMenu = 'death'
+				document.getElementById('rightcontroltext').innerText = 'Restart'
+				document.getElementById('leftcontroltext').innerText = ''
+
+			}, 1000)
+
 		}
 	}
 }
@@ -174,6 +220,7 @@ window.onload = async () => {
 
 	document.getElementById('timetext').innerText = 'Resizing content'
 	onResize()
+	let stopLoad = false
 	await loadImages([
 		{ name: 'endpoint', src: 'img/endpoint.png' },
 		{ name: 'endpoint2', src: 'img/endpoint2.png' },
@@ -184,8 +231,15 @@ window.onload = async () => {
 		{ name: 'endpointCleared', src: 'img/other endpoint.png' },
 		{ name: 'endpointClearedDone', src: 'img/other endpoint reached.png' },
 		{ name: 'spawnpoint', src: 'img/spawnpoint.png' },
-		{ name: 'paused', src: 'img/paused.png' },
-	])
+		{ name: 'starthere1', src: 'img/start here 1.png' },
+		{ name: 'starthere2', src: 'img/start here 2.png' },
+		{ name: 'skinblack', src: 'img/player skins/black.png' },
+		{ name: 'skinblackthrust', src: 'img/player skins/blackthrust.png' }
+	]).catch((e) => {
+		document.getElementById('timetext').innerText = 'Error loading image!'
+		stopLoad = true
+	})
+	if (stopLoad === true) return
 	document.getElementById('timetext').innerText = 'Starting game'
 	onResize()
 
@@ -199,13 +253,13 @@ window.onload = async () => {
 	document.getElementById('right').ontouchend = (e) => { touchEvents('ArrowRight', false, e) }
 	document.getElementById('right').ontouchcancel = (e) => { touchEvents('ArrowRight', false, e) }
 
-	document.getElementById('top').ontouchend = (e) => {
+	document.getElementById('upleft').ontouchstart = (e) => { touchEvents('Escape', true, e) }
+	document.getElementById('upleft').ontouchend = (e) => { touchEvents('Escape', false, e) }
+	document.getElementById('upleft').ontouchcancel = (e) => { touchEvents('Escape', false, e) }
 
-		togglePause()
-
-		e.preventDefault()
-
-	}
+	document.getElementById('upright').ontouchstart = (e) => { touchEvents('ArrowUp', true, e) }
+	document.getElementById('upright').ontouchend = (e) => { touchEvents('ArrowUp', false, e) }
+	document.getElementById('upright').ontouchcancel = (e) => { touchEvents('ArrowUp', false, e) }
 
 	document.body.ontouchstart = preventDefault
 	document.body.ontouchend = preventDefault
@@ -218,7 +272,11 @@ window.onload = async () => {
 
 
 	function touchEvents(key, setTo, event) {
-		keys[key] = setTo
+		if (setTo === true) {
+			document.body.onkeydown({ code: key })
+		} else {
+			document.body.onkeyup({ code: key })
+		}
 		event.preventDefault()
 	}
 

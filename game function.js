@@ -1,3 +1,4 @@
+
 let debug = 'no info'
 let debugRounded = 'no floored info'
 
@@ -13,6 +14,9 @@ function game() {
 
 					stopGame = () => {
 						toReturn.onStop(wasDeath, score)
+						if (wasDeath === true) {
+							toReturn.dead = true
+						}
 						resolve()
 
 					}
@@ -33,7 +37,8 @@ function game() {
 		paused: false,
 		score: 0,
 		time: 0,
-		stopped: false
+		stopped: false,
+		dead: false,
 	}
 
 	requestAnimationFrame(loop)
@@ -46,7 +51,7 @@ function game() {
 
 	let clearFrames = true
 	let score = 0
-	let time = 10
+	let time = 0
 
 	let paused = false
 	let lastFrameWasPaused = false
@@ -55,6 +60,9 @@ function game() {
 
 	let spaceshipData = []
 	let currentSpaceshipData
+
+
+	let firstSpaceship = false
 
 
 
@@ -96,6 +104,8 @@ function game() {
 	p.images.thrust = images.normalthrust
 	p.mainImage = p.images.normal
 
+
+	document.getElementById('textcontainer').style.opacity = '1'
 
 
 	function drawImage(image, x, y, options) {
@@ -204,6 +214,9 @@ function game() {
 	let endpointAnimInv = 0
 	let endpointAnim = ''
 	let currentKeyframeTimestampIndex
+
+	let startHereAnimInv = 0
+	let startHereAnim = '1'
 
 
 
@@ -333,7 +346,7 @@ function game() {
 
 
 
-		if (currentSpaceshipData.keyframeData[currentSpaceshipData.keyframeData.length + 1] !== toPushInto) {
+		if (currentSpaceshipData.keyframeData[currentSpaceshipData.keyframeData.length + 1] !== toPushInto && firstSpaceship === true) {
 			currentSpaceshipData.keyframeData.push(toPushInto)
 		}
 		debug = `fps: ${fps} / x: ${p.x} / y: ${p.y} / r: ${p.r} / (speed) x: ${p.speed.x} / y: ${p.speed.y} / r: ${p.speed.r}`
@@ -436,13 +449,16 @@ function game() {
 		})
 
 		if (currentSpaceshipData !== undefined && (currentSpaceshipData.endLocation.x <= (p.x + 12) && (currentSpaceshipData.endLocation.x + 22) >= p.x) && (currentSpaceshipData.endLocation.y <= (p.y + 12) && (currentSpaceshipData.endLocation.y + 22) >= p.y)) {
-			spaceshipData.push(currentSpaceshipData)
+			if (firstSpaceship === true) {
+				spaceshipData.push(currentSpaceshipData)
+			}
 			currentSpaceshipData = undefined
 			p.speed.x = 0
 			p.speed.y = 0
 			p.speed.r = 0
 			score++
 			time += 10
+			firstSpaceship = true
 		}
 
 
@@ -497,6 +513,16 @@ function game() {
 			}
 		}
 
+		startHereAnimInv += dt()
+		if (startHereAnimInv > 1000) {
+			startHereAnimInv = 0
+			if (startHereAnim === '1') {
+				startHereAnim = '2'
+			} else {
+				startHereAnim = '1'
+			}
+		}
+
 
 
 		if (currentSpaceshipData !== undefined) drawImage(images[`endpoint${endpointAnim}`], currentSpaceshipData.endLocation.x, currentSpaceshipData.endLocation.y, { filter: `hue-rotate(${endpointHue}deg)` })
@@ -506,8 +532,23 @@ function game() {
 		}
 
 
-		if (spaceshipData.length !== 0) {
+		if (firstSpaceship === true) {
 			time -= (deltaTime * 0.001)
+		} else if (currentSpaceshipData !== undefined) {
+			// console.log(currentSpaceshipData.endLocation)
+			if (currentSpaceshipData.endLocation !== undefined) {
+				let startPosX = currentSpaceshipData.endLocation.x
+				let startPosY = currentSpaceshipData.endLocation.y - images[`starthere${startHereAnim}`].height
+
+				if (startPosY < 0) {
+					startPosY = 0
+				}
+				if (startPosX + images[`starthere${startHereAnim}`].width > canvas.width) {
+					startPosX = canvas.width - images[`starthere${startHereAnim}`].width
+				}
+
+				drawImage(images[`starthere${startHereAnim}`], startPosX, startPosY)
+			}
 		}
 
 		document.getElementById('scoretext').innerText = score
@@ -520,9 +561,10 @@ function game() {
 
 
 		if (time < 0) {
-			document.getElementById('timetext').innerText = 'game over'
 			spaceshipData = []
 			currentSpaceshipData = []
+			document.getElementById('textcontainer').style.opacity = '0'
+			document.getElementById('timetext').innerText = '0'
 			toReturn.stop(true)
 		}
 		requestAnimationFrame(loop)

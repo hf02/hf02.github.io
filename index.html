@@ -13,6 +13,8 @@
     <canvas width="400" height="400" id="stars"></canvas>
     <canvas width="400" height="400" id="canvas"></canvas>
     <div id="textholder">
+        <div id="leftcontroltext"></div>
+        <div id="rightcontroltext"></div>
         <div id="textcontainer">
             <div id="scoretext">0%</div>
             <div id="timetext">Waiting for page to load...</div>
@@ -22,16 +24,28 @@
     <div id="focustext"></div>
 
 
-
-    <div id="fps"></div>
-
-    <div id="left"></div>
-    <div id="right"></div>
-    <div id="top"></div>
-
     <div id="pause" style="display:none;">
         <h1>Paused</h1>
     </div>
+
+    <div id="death">
+        <h1 id="deathtitle">Your shift has ended</h1>
+        <div id="deathmock"></div>
+        <h2 id="deathscore">Your score: <span id="deathscorenumber">...</span></h2>
+        <h2 id="deathhighscore">Highscore: <span id="deathhighscorenumber">...</span></h2>
+    </div>
+
+
+    <span>
+        <div id="fps"></div>
+    </span>
+
+
+
+    <div id="left"></div>
+    <div id="right"></div>
+    <div id="upleft"></div>
+    <div id="upright"></div>
 
     <script src="game function.js"></script>
     <script src="index.js"></script>

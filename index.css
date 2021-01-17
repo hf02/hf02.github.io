@@ -42,6 +42,28 @@
     box-shadow: grey 0px 0px 5px 0px;
 }
 
+#death {
+    position: fixed;
+    left:50%;
+    top:-50%;
+    padding:10px;
+    background-color:#313131;
+    transform: translate(-50%, -50%) scale(0);
+    box-shadow: grey 0px 0px 5px 0px;
+    transition-duration: 1s;
+    transition-property: top transform;
+}
+
+#deathmock {
+    font-style: italic;
+    color:gray;
+    text-align: center;
+}
+
+#deathtitle {
+    margin-bottom:5px;
+}
+
 .button {
     background-color:black;
     padding:10px;
@@ -56,12 +78,19 @@
     width:50%;
     height: 100%;
 }
-#top {
+#upleft {
     position: fixed;
     top:0px;
     left:0px;
-    width:100%;
-    height: 40%;
+    width:50%;
+    height: 50%;
+}
+#upright {
+    position: fixed;
+    top:0px;
+    left:50%;
+    width:50%;
+    height: 50%;
 }
 
 #textholder {
@@ -80,10 +109,30 @@
 
 #textcontainer {
     padding:20px;
+    opacity: 0;
+    transition: opacity 500ms;
 }
 
 #timetext {
     font-size: 50%
+}
+
+#leftcontroltext {
+    position: absolute;
+    left:5px;
+    top:5px;
+    color:black;
+    font-weight: bold;
+    font-size:50%;
+}
+
+#rightcontroltext {
+    position: absolute;
+    right:5px;
+    top:5px;
+    color:black;
+    font-weight: bold;
+    font-size:50%;
 }
 
 body {
