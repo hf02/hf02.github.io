@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<meta name="name" content="hacked chip: prototype browser game" />
+		<meta name="description" content="prototype 3d fps" />
+		<style>
+			body {
+				background-color: black;
+				color: white;
+			}
+		</style>
+		
+
+		
+
+		<link rel="stylesheet" href="/_app/assets/start-c446e5f0.css">
+		<link rel="modulepreload" href="/_app/start-7d639241.js">
+		<link rel="modulepreload" href="/_app/chunks/vendor-7952ea8e.js">
+
+		<script type="module">
+			import { start } from "/_app/start-7d639241.js";
+			start({
+				target: document.querySelector("#svelte"),
+				paths: {"base":"","assets":""},
+				session: {},
+				route: true,
+				spa: true,
+				trailing_slash: "never",
+				hydrate: null
+			});
+		</script>
+	</head>
+	<body>
+		<div id="svelte"></div>
+	</body>
+</html>
